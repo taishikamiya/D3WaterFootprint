@@ -140,10 +140,10 @@ svgCanvas.append("circle")
     .attr("stroke-width",3)
     .attr("stroke",calColor);
 var legend2 = svgCanvas.append("text")
-		.text("1000 Caloriesper KG")
+		.text("1000 Calories per KG")
 		.style("font-size", "12px")
 		.attr("fill", "gray")
-		.attr("x", width-150)
+		.attr("x", width - 0)
 		.attr("y", height/2)
 		.attr("font-size",24);
 
@@ -161,22 +161,8 @@ var legend3 = svgCanvas.append("text")
 		.attr("x", width-150)
 		.attr("y", height/2+100)
 		.attr("font-size",24);
-/*
-// general text
-var denText = svgCanvas.append("text")
-		.text("DENMARK")
-		.style("font-size", "48px")
-		.attr("fill", "gray")
-		.attr("x", width-100)
-		.attr("y", height/2 -20)
 
-var gerText = svgCanvas.append("text")
-		.text("GERMANY")
-		.style("font-size", "48px")
-		.attr("fill", "gray")
-		.attr("x", width-100)
-		.attr("y", height/2 +40)
-*/
+
 var mealText1 = svgCanvas.append("text")
 		.text("beakfast")
 		.style("font-size", "20px")
@@ -257,7 +243,6 @@ var colorScale2 = d3.scaleLinear()
     .range(["green","yellow"]);
 
 //
-
 //morning
 drawCirc1(mornum);
 
@@ -267,8 +252,6 @@ drawCirc2(lunnum);
 // dinner
 drawCirc3(dinnum);
 
-
-
 function drawCompare(index,dx){
 
 var groupName = "group-"+index;
@@ -276,7 +259,7 @@ var groupName = "group-"+index;
 var group = svgCanvas.append("g")
 	.attr("id", groupName);
 
-//denmark?
+//Denmark
 var circ = group.append("g")
     		.attr("transform", "translate(" + dx + ","+ height/2 + ")")
 		.append("circle")
@@ -295,39 +278,8 @@ var circ = group.append("g")
 				return (denm[index])/(dispScale);
 			});
 
-// var arc1 = d3.append("arc")
-// 				.attr("innerRadius", 200)
-// 				.attr("outerRadus",240)
-// 				.attr("startAngle",0)
-// 				.attr("endAngle",90);
 
-// var arc2 = svgCanvas.append("path")
-// 		.attr("fill",denColor)
-// 		.attr("d",arc1);
-
-   // var arc = d3.arc()
-   // 	.innerRadius(200)
-   // 	.outerRadus(240)
-   // 	.startAngle(0)
-   // 	.endAngle(90);
-
-   // 	var arc1 = group.append("path")
-   // 		.datum({endAngle: tau})
-   // 		.style("fill","#ddd")
-   // 		.attr("d",arc);
-
-// var svg = d3.select("svg"),
-//     width = +svg.attr("width"),
-//     height = +svg.attr("height"),
-//     g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-// var background = g.append("path")
-//     .datum({endAngle: tau})
-//     .style("fill", "#ddd")
-//     .attr("d", arc);
-
-
-
-//germany
+//Germany
 var circ2 = group.append("g")
     		.attr("transform", "translate(" + dx + ","+ height/2 + ")")
 		.append("circle")
@@ -350,6 +302,7 @@ var circ2 = group.append("g")
 				});
 
 
+// cal
 var circ3 = group.append("g")
     		.attr("transform", "translate(" + dx + ","+ height/2 + ")")
 		.append("circle")
@@ -460,26 +413,6 @@ var txt3 = group.append("g").append("text")
 		.attr("opacity",0)
 		.transition().delay(500).duration(1000)
         	.attr("opacity",1);
-
-/*
-//water-ger
-var txt3 = group.append("g").append("text")
-		.text(function(d,i){
-			return germ[index]+"litter";
-		})
-		.attr("fill", "blue")
-		.attr("x",function(d,i){
-			return dx;
-		})
-		.attr("y", height/2 + circ1Offset)
-		.attr("font-size",24)
-		.attr("opacity",0)
-		.transition().delay(500).duration(1000)
-        	.attr("opacity",1);
-
-
-*/
-
 
 }
 
