@@ -1,0 +1,561 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Water Footprint and Carolie</title>
+
+	<script type="text/javascript" src="libs/d3.v4.min.js"></script>
+</head>
+
+<style type="text/css">
+	svg{ 
+		background-color: "black";
+	}
+	.labels{
+		font: Gotham;
+		size: 10pt;
+	}
+	#container{
+		width:100%;
+		height:100%;
+	}
+    
+/*    .axis text {
+    	font: 10px sans-serif;
+    }
+*/
+
+text {
+  font: 20px "Orator Std", Orator Std, Arial, sans-serif;
+  text-anchor: middle;
+  pointer-events: none;
+}
+ 
+    .axis path,
+    .axis line {
+    	fill: none;
+    	stroke: #000;
+    	stroke-width: 2;
+        shape-rendering: crispEdges;
+    }
+
+</style>
+
+<body>
+
+<div id = "vizContainer"></div>
+<svg width="1200" height="600"></svg>
+
+<script type="text/javascript">
+
+var data;
+var categ = [];
+var meal = [];
+var foods = [];
+var cals = [];
+var denm = [];
+var germ = [];
+
+var denColor = "#A4C7D8";
+var gerColor = "#339BC4";
+var calColor = "#DBA5A5";
+
+var mornum = 11;
+var lunnum = 0;
+var dinnum = 6;
+
+var dispScale = 50;
+
+var circ1Offset=50;
+var circ2Offset=350;
+var circ3Offset=650;
+
+
+var margin = {top: 20, right: 20, bottom: 20, left: 50},
+    width = 1200 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
+var svgCanvas;
+
+svgCanvas = d3.select("#vizContainer").append("svg") 
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+   .append("g")
+     .attr("transform", "translate(" + margin.left + "," + margin.top + ")"); 
+
+//reading
+d3.csv("data/Water consumption data - Final final.csv", function(myData){
+	data = myData;
+	console.log(data);
+	for (var i = 0; i<data.length; i++) {
+		meal.push(data[i]["Meal"]);
+		categ.push(data[i]["Product"]);
+		foods.push(data[i]["Recipies"]);
+		cals.push(data[i]["Calories"]);
+		denm.push(parseFloat(data[i]["Denmark water"]));
+		germ.push(parseFloat(data[i]["Germany water"]));
+	}
+	console.log(meal);
+	console.log(categ);
+	console.log(foods);
+	console.log(cals);
+	console.log(denm);
+	console.log(germ);
+
+	drawData();
+});
+
+
+var axisline = svgCanvas.append("line")
+	.attr("x1",0)
+	.attr("x2",width-300)
+	.attr("y1",height/2)
+	.attr("y2",height/2)
+    .attr("opacity",1)
+    .attr("stroke-dasharray", [10,5])
+    .attr("stroke","gray")
+    .attr("stroke-width",2)
+    .attr("fill","none");
+
+// legend
+
+svgCanvas.append("circle")
+    .attr("cx",width-250)
+    .attr("cy",height/2-100)
+    .attr("r",40)
+    .attr("fill","none")
+    .attr("stroke-width",3)
+    .attr("stroke",denColor);
+var legend1 = svgCanvas.append("text")
+		.text("1000 liters water per KG in DENMARK")
+		.style("font-size", "12px")
+		.attr("fill", "gray")
+		.attr("x", width-150)
+		.attr("y", height/2 -100)
+
+svgCanvas.append("circle")
+    .attr("cx",width-250)
+    .attr("cy",height/2)
+    .attr("r",40)
+    .attr("fill","none")
+    .attr("stroke-width",3)
+    .attr("stroke",calColor);
+var legend2 = svgCanvas.append("text")
+		.text("1000 Caloriesper KG")
+		.style("font-size", "12px")
+		.attr("fill", "gray")
+		.attr("x", width-150)
+		.attr("y", height/2)
+		.attr("font-size",24);
+
+svgCanvas.append("circle")
+    .attr("cx",width-250)
+    .attr("cy",height/2+100)
+    .attr("r",40)
+    .attr("fill","none")
+    .attr("stroke-width",3)
+    .attr("stroke",gerColor);
+var legend3 = svgCanvas.append("text")
+		.text("1000 Litres water per KG in GERMANY")
+		.style("font-size", "12px")
+		.attr("fill", "gray")
+		.attr("x", width-150)
+		.attr("y", height/2+100)
+		.attr("font-size",24);
+/*
+// general text
+var denText = svgCanvas.append("text")
+		.text("DENMARK")
+		.style("font-size", "48px")
+		.attr("fill", "gray")
+		.attr("x", width-100)
+		.attr("y", height/2 -20)
+
+var gerText = svgCanvas.append("text")
+		.text("GERMANY")
+		.style("font-size", "48px")
+		.attr("fill", "gray")
+		.attr("x", width-100)
+		.attr("y", height/2 +40)
+*/
+var mealText1 = svgCanvas.append("text")
+		.text("beakfast")
+		.style("font-size", "20px")
+		.attr("fill", "black")
+		.attr("x", circ1Offset)
+		.attr("y", height-10)
+var mealText2 = svgCanvas.append("text")
+		.text("lunch")
+		.style("font-size", "20px")
+		.attr("fill", "black")
+		.attr("x", circ2Offset)
+		.attr("y", height-10)
+var mealText1 = svgCanvas.append("text")
+		.text("dinner")
+		.style("font-size", "20px")
+		.attr("fill", "black")
+		.attr("x", circ3Offset)
+		.attr("y", height-10)
+
+
+///
+
+
+// var arcgroup = svgCanvas.append("g")
+// 	.attr("id", arcgroup);
+
+// グラフに表示するデータ
+var dataArr = [110, 450, 870, 300, 630];
+var colorArr = ['#E74C3C', '#3498DB', '#2ECC71', '#9B59B6', '#34495e'];
+// グラフ全体のサイズ
+// var svgWidth = 500;
+// var svgHeight = 500;
+ 
+// // グラフの枠作成
+// var svg = d3.select('#sample').append('svg').attr({
+//     width: svgWidth,
+//     height: svgHeight
+// });
+// 円グラフを作成
+var pie = d3.pie().sort(null).value(function(d) {
+    return d;
+});
+ 
+// 円グラフのサイズを指定
+var arc = d3.arc().innerRadius(50).outerRadius(100);
+ 
+// 円グラフを描画
+//var drawarc = arcgroup.selectAll('path')
+svgCanvas.selectAll('path')
+	.data(pie(dataArr))
+	.enter()
+	.append('path')
+	.style({
+    fill: function(d, i) {
+        return colorArr[i];
+    }})
+	.attr({
+    d: arc,
+    transform: 'translate(' + width / 2 + ', ' + height / 2 + ')'});
+
+
+
+// -----------PART 3: DRAWING ON THE CANVAS-----------
+function drawData(){
+
+
+var dScale = d3.scaleLinear()
+	.domain([0,d3.max(denm)])
+	.range([10, width-10]);
+var gScale = d3.scaleLinear()
+	.domain([0,d3.max(germ)])
+	.range([10, height-10]);
+var colorScale = d3.scaleLinear()
+    .domain([0,d3.max(denm)])
+    .range(["blue","red"]);
+var colorScale2 = d3.scaleLinear()
+    .domain([0,d3.max(germ)])
+    .range(["green","yellow"]);
+
+//
+
+//morning
+drawCirc1(mornum);
+
+// lunch
+drawCirc2(lunnum);
+
+// dinner
+drawCirc3(dinnum);
+
+
+
+function drawCompare(index,dx){
+
+var groupName = "group-"+index;
+
+var group = svgCanvas.append("g")
+	.attr("id", groupName);
+
+//denmark?
+var circ = group.append("g")
+    		.attr("transform", "translate(" + dx + ","+ height/2 + ")")
+		.append("circle")
+			.attr("cx",0)
+			.attr("cy",0)
+			.attr("r", function(d,i){
+//				return dScale(denm[index])/dispScale;
+				return denm[index]/dispScale/100;
+			})
+        	.attr("opacity",1)
+			.attr("fill",denColor)
+			.attr("stroke","white")
+
+		.transition().delay(500).duration(1000)
+        	.attr("r",function(d,i){
+				return (denm[index])/(dispScale);
+			});
+
+// var arc1 = d3.append("arc")
+// 				.attr("innerRadius", 200)
+// 				.attr("outerRadus",240)
+// 				.attr("startAngle",0)
+// 				.attr("endAngle",90);
+
+// var arc2 = svgCanvas.append("path")
+// 		.attr("fill",denColor)
+// 		.attr("d",arc1);
+
+   // var arc = d3.arc()
+   // 	.innerRadius(200)
+   // 	.outerRadus(240)
+   // 	.startAngle(0)
+   // 	.endAngle(90);
+
+   // 	var arc1 = group.append("path")
+   // 		.datum({endAngle: tau})
+   // 		.style("fill","#ddd")
+   // 		.attr("d",arc);
+
+// var svg = d3.select("svg"),
+//     width = +svg.attr("width"),
+//     height = +svg.attr("height"),
+//     g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+// var background = g.append("path")
+//     .datum({endAngle: tau})
+//     .style("fill", "#ddd")
+//     .attr("d", arc);
+
+
+
+//germany
+var circ2 = group.append("g")
+    		.attr("transform", "translate(" + dx + ","+ height/2 + ")")
+		.append("circle")
+			.attr("class","cir2")
+			.attr("cx",0)
+			.attr("cy",function(d,i){
+//				return gScale(germ[index])/dispScale;
+				return germ[index]/dispScale;
+			})
+			.attr("r", function(d,i){
+				return germ[index]/dispScale/100;
+//				return gScale(germ[index])/dispScale;
+			})
+        	.attr("opacity",0.78)
+			.attr("fill",gerColor)
+			.attr("stroke","white")
+			.transition().delay(500).duration(1000)
+        		.attr("r",function(d,i){
+					return (germ[index])/(dispScale);
+				});
+
+
+var circ3 = group.append("g")
+    		.attr("transform", "translate(" + dx + ","+ height/2 + ")")
+		.append("circle")
+			.attr("class","cir3")
+			.attr("cx",0)
+			.attr("cy",0)
+			.attr("r",5)
+			.attr("opacity",0)
+			.attr("fill",calColor)
+			.attr("stroke","white")
+		.on("mouseover", function(){
+			d3.select(this)
+				.attr("opacity",1);
+			})
+		.on("mouseout", function(){
+			d3.select(this)
+				.attr("opacity",0.94);
+			})
+		.on("click", function(){
+			if(dx==circ1Offset){ 
+				if(mornum>=11){return mornum-=4;}
+				else{
+					mornum++;
+					// console.log(mornum);
+					 drawCompare(mornum, dx);
+		}
+		}	else if(dx==circ2Offset){
+				if(dinnum>=7){return dinnum-=4;}
+				else{
+					dinnum++;
+					// console.log(mornum);
+					 drawCompare(dinnum, dx);
+		}	
+			} else if(dx==circ3Offset){ 
+				if(lunnum>=3){return lunnum-=4;}
+				else{
+					lunnum++;
+					 drawCompare(lunnum, dx);
+					}
+			}
+			console.log(groupName);
+			d3.select("#"+groupName)
+				.remove();
+	})
+		.transition().delay(500).duration(1000)
+        	.attr("opacity",0.94)
+        	.attr("r",function(d,i){
+				return (cals[index])/(dispScale*5);
+			});
+
+////text
+
+
+// category
+var txt0 = group.append("g").append("text")
+		.text(function(d,i){
+			return categ[index];
+		})
+		.attr("fill", "gray")
+		.attr("x",function(d,i){
+			return dx;
+		})
+		.attr("y", 20)
+		.style("font-size", "20px");
+
+//name
+var txt = group.append("g").append("text")
+		.text(function(d,i){
+			return foods[index];
+		})
+		.attr("fill", "gray")
+		.attr("x",function(d,i){
+			return dx;
+		})
+		.attr("y", 35)
+		.style("font-size", "12px")
+		.attr("opacity",0)
+		.transition().delay(500).duration(1000)
+        	.attr("opacity",1);
+
+//cal
+var txt2 = group.append("g").append("text")
+		.text(function(d,i){
+			return "Energy: "+cals[index]+"kCal/kg";
+		})
+		.attr("fill", calColor)
+		.attr("x",function(d,i){
+			return dx;
+		})
+		.attr("y", 60)
+		.style("font-size", "16px")
+		.attr("opacity",0)
+		.transition().delay(500).duration(1000)
+        	.attr("opacity",1);
+
+
+//water-den
+var txt3 = group.append("g").append("text")
+		.text(function(d,i){
+			return "Average Water: "+denm[index]+"L/kg";
+		})
+		.attr("fill", denColor)
+		.attr("x",function(d,i){
+			return dx;
+		})
+		.attr("y", 80)
+		.style("font-size", "16px")
+		.attr("opacity",0)
+		.transition().delay(500).duration(1000)
+        	.attr("opacity",1);
+
+/*
+//water-ger
+var txt3 = group.append("g").append("text")
+		.text(function(d,i){
+			return germ[index]+"litter";
+		})
+		.attr("fill", "blue")
+		.attr("x",function(d,i){
+			return dx;
+		})
+		.attr("y", height/2 + circ1Offset)
+		.attr("font-size",24)
+		.attr("opacity",0)
+		.transition().delay(500).duration(1000)
+        	.attr("opacity",1);
+
+
+*/
+
+
+}
+
+function textCompare(index,dx){
+
+var groupName = "group-"+index;
+
+var group = svgCanvas.append("g")
+	.attr("id", groupName);
+
+//name
+var txt = svgCanvas.append("text")
+		.text(function(d,i){
+			return foods[index];
+		})
+		.attr("fill", "gray")
+		.attr("x",function(d,i){
+			return dx-48;
+		})
+		.attr("y", 40)
+		.style("font-size", "20px");
+
+//cal
+var txt2 = svgCanvas.append("text")
+		.text(function(d,i){
+			return cals[index]+"kCal";
+		})
+		.attr("fill", "red")
+		.attr("x",function(d,i){
+			return dx;
+		})
+		.attr("y", 50)
+		.attr("font-size",24);
+
+//water-den
+var txt3 = svgCanvas.append("text")
+		.text(function(d,i){
+			return denm[index]+"litter";
+		})
+		.attr("fill", gerColor)
+		.attr("x",function(d,i){
+			return dx;
+		})
+		.attr("y", height/2 - circ1Offset)
+		.attr("font-size",24);
+
+//water-ger
+var txt3 = svgCanvas.append("text")
+		.text(function(d,i){
+			return germ[index]+"litter";
+		})
+		.attr("fill", "blue")
+		.attr("x",function(d,i){
+			return dx;
+		})
+		.attr("y", height/2 + circ1Offset)
+		.attr("font-size",24);
+
+}
+
+function drawCirc1(num){
+	drawCompare(num,circ1Offset);
+//	textCompare(num,200);
+}
+function drawCirc2(num){
+	drawCompare(num,circ2Offset);
+//	textCompare(num,500);
+}
+function drawCirc3(num){
+	drawCompare(num,circ3Offset);
+//	textCompare(num,800);
+}
+
+
+}
+
+	</script>
+</body>
+</html>
